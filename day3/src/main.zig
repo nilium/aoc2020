@@ -23,7 +23,7 @@ pub fn main() anyerror!void {
 
     var hits: usize = 1;
     for (checks) |*c| {
-        std.log.info("Right = {} Down = {} Hits = {} Lines = {}", .{ c.stride, c.skip, c.hits, c.lines });
+        std.log.info("Right = {} Down = {} Hits = {}", .{ c.stride, c.skip, c.hits });
         hits *= c.hits;
     }
     std.log.info("Product = {}", .{hits});
@@ -32,7 +32,6 @@ pub fn main() anyerror!void {
 const Counter = struct {
     const Self = @This();
 
-    lines: usize = 0,
     skip: usize = 0,
     stride: usize = 1,
     x: usize = 0,
@@ -43,7 +42,6 @@ const Counter = struct {
         const y = self.y;
         self.y += 1;
         if (y % (self.skip + 1) != 0) return;
-        self.lines += 1;
         if (line[self.x] == '#') self.hits += 1;
         self.x += self.stride;
         if (self.x >= line.len) self.x -= line.len;
