@@ -57,7 +57,7 @@ pub fn main() anyerror!void {
 fn Combination(comptime T: type, comptime size: usize) type {
     comptime {
         if (size == 0) {
-            unreachable; // size=0 not permitted since it makes no sense.
+            @compileError("size=0 not permitted for combinations");
         }
     }
     return struct {
