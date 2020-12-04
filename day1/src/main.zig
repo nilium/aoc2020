@@ -2,12 +2,20 @@ const std = @import("std");
 const io = std.io;
 const File = std.fs.File;
 const Reader = File.Reader;
-const Allocator = std.mem.Allocator;
+
 const expect = std.testing.expect;
 
-const alloc = std.heap.c_allocator;
+fn Allocator() std.heap.ArenaAllocator {
+    return std.heap.ArenaAllocator.init(std.heap.page_allocator);
+}
+
 
 pub fn main() anyerror!void {
+    var allocator = Allocator();
+    defer allocator.deinit();
+
+    const alloc = &allocator.allocator;
+
     var buf: [4000]u8 = undefined;
     const bufp = buf[0..];
 
