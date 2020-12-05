@@ -112,6 +112,8 @@ const Lexer = struct {
     }
 
     fn lexToken(self: *Self, c: u8) !?Token {
+        // Reset token buffer to 0 length. Never allocs.
+        self.token.resize(0) catch unreachable;
         switch (c) {
             ' ' => self.state = .ws,
             '\n' => self.state = .nl,
@@ -189,8 +191,6 @@ pub fn TokenReader(comptime Reader: type) type {
                 },
                 else => {},
             }
-            // Reset token buffer to 0 length. Never allocs.
-            lex.token.resize(0) catch unreachable;
             while (true) {
                 while (lex.shift()) |c| {
                     if (try lex.lexChar(c)) |token| return token;
