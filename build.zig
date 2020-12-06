@@ -23,6 +23,7 @@ const days = [_]Pkg{
     dayPkg(3, "day3/src/main.zig"),
     dayPkg(4, "day4/src/main.zig"),
     dayPkg(5, "day5/src/main.zig"),
+    dayPkg(6, "day6/src/main.zig"),
 };
 
 fn dayBuild(day: Pkg, b: *Builder, target: Target, mode: std.builtin.Mode) void {
