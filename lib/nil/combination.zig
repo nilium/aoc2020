@@ -1,3 +1,4 @@
+const std = @import("std");
 // Based on <https://rosettacode.org/wiki/Combinations#Nim> because I don't
 // remember this stuff off the top of my head.
 
@@ -71,14 +72,16 @@ pub fn Combination(comptime T: type, comptime size: usize) type {
 }
 
 test "combinations" {
+    const expectEqual = std.testing.expectEqual;
+    const expectEqualSlices = std.testing.expectEqualSlices;
+
     const C2 = Combination(i32, 2);
 
-    comptime expect(C2.Type == i32);
-    comptime expect(C2.Size == 2);
+    comptime expectEqual(i32, C2.Type);
+    comptime expectEqual(2, C2.Size);
 
-    const Pair = struct { r: i32, s: i32 };
-    const data = &[_]i32{ 4, 3, 2, 1 };
-    const want = [_][2]i32{
+    const data = &[_]C2.Type{ 4, 3, 2, 1 };
+    const want = [_][2]C2.Type{
         .{ 4, 3 },
         .{ 4, 2 },
         .{ 4, 1 },
@@ -91,9 +94,9 @@ test "combinations" {
     var i: usize = 0;
     while (n2.next()) |pair| {
         const wanted = want[i];
-        expect(std.mem.eql(i32, &pair, &wanted)); // Expect that the pair is the same.
+        expectEqualSlices(C2.Type, &pair, &wanted);
         i += 1;
     }
 
-    expect(i == want.len); // Expect that we get the desired number of results.
+    expectEqual(want.len, i); // Expect that we get the desired number of results.
 }
