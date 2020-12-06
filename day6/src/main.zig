@@ -128,17 +128,6 @@ pub fn main() anyerror!void {
 
     std.log.info("Count 1 = {}", .{pt1.count});
     std.log.info("Count 2 = {}", .{pt2.count});
-
-    // Invert the bitset and look for bits where the surrounding bits are unset.
-    // bits.invert();
-    // var iter = bits.iter();
-    // while (iter.next()) |bit| {
-    //     // Ignore underflow on this because the 2**64-th bit won't be set.
-    //     if (!bits.get(bit -% 1) and !bits.get(bit + 1)) {
-    //         // Print empty-but-surrounded bits (part 2).
-    //         std.log.notice("Empty ID = {}", .{bit});
-    //     }
-    // }
 }
 
 fn read(comptime Reader: type, reader: *Reader, buf: []u8) !?[]u8 {
