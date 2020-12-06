@@ -68,7 +68,7 @@ pub const BitSet = struct {
     pub fn count(self: Self) usize {
         if (self.bits == null) return 0;
         var n: usize = 0;
-        for (self.bits.?) |i| n += bitsSet(i);
+        for (self.bits.?) |i| n += @popCount(u64, i);
         return n;
     }
 
@@ -94,8 +94,10 @@ pub const BitSet = struct {
                 if (self.i >= bits.len) return null;
                 self.word = bits[self.i];
             }
-            const bit = bitsTrailingZeros(self.word);
-            self.word &= ~(@intCast(u64, 1) << @intCast(u6, bit));
+            // Note: because of the self.word == 0 check above, this will never
+            // be never be 64.
+            const bit = @truncate(u6, @ctz(u64, self.word));
+            self.word &= ~(@intCast(u64, 1) << bit);
             return self.i * 64 + bit;
         }
     };
@@ -132,74 +134,4 @@ test "BitSet usage" {
 
     bits.zero();
     expectEqual(@intCast(usize, 0), bits.count());
-}
-
-pub fn bitsSet(u: u64) usize {
-    const m = (1 << 64) - 1;
-    const m0 = 0x55555555_55555555;
-    const m1 = 0x33333333_33333333;
-    const m2 = 0x0f0f0f0f_0f0f0f0f;
-    const m3 = 0x00ff00ff_00ff00ff;
-    const m4 = 0x0000ffff_0000ffff;
-    const m5 = 0x00000000_ffffffff;
-    var x = u;
-    x = (x >> 1 & m0) + (x & (m0 & m));
-    x = (x >> 2 & m1) + (x & (m1 & m));
-    x = (x >> 4 & m2) + (x & (m2 & m));
-    x = (x >> 8 & m3) + (x & (m3 & m));
-    x = (x >> 16 & m4) + (x & (m4 & m));
-    x = (x >> 32 & m5) + (x & (m5 & m));
-    return @intCast(usize, x);
-}
-
-test "bitsSet" {
-    const eql = std.testing.expectEqual;
-
-    eql(@intCast(u64, 0), bitsSet(0));
-    eql(@intCast(u64, 1), bitsSet(0x10000));
-    eql(@intCast(u64, 31), bitsSet(0xFFF7FFFF));
-    eql(@intCast(u64, 32), bitsSet(0xFFFFFFFF));
-    eql(@intCast(u64, 64), bitsSet(0xFFFFFFFF_FFFFFFFF));
-}
-
-pub fn bitsTrailingZeros(u: u64) u64 {
-    // Currently based off the
-    // https://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightBinSearch
-    if (u == 0) return 64;
-    var n: u64 = 1;
-    var x = u;
-    if (x & 0xFFFFFFFF == 0) {
-        n += 32;
-        x >>= 32;
-    }
-    if (x & 0xFFFF == 0) {
-        n += 16;
-        x >>= 16;
-    }
-    if (x & 0xFF == 0) {
-        n += 8;
-        x >>= 8;
-    }
-    if (x & 0xF == 0) {
-        n += 4;
-        x >>= 4;
-    }
-    if (x & 0x3 == 0) {
-        n += 2;
-        x >>= 2;
-    }
-    return n - (x & 1);
-}
-
-test "bitsTrailingZeros" {
-    const eql = std.testing.expectEqual;
-    eql(@intCast(u64, 64), bitsTrailingZeros(0));
-    var n: u64 = 1;
-    var i: u64 = 0;
-    while (n != 0) : ({
-        n <<= 1;
-        i += 1;
-    }) {
-        eql(i, bitsTrailingZeros(n));
-    }
 }
