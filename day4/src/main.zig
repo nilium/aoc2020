@@ -30,7 +30,7 @@ pub fn main() anyerror!void {
             },
         }
     }
-    std.log.info("Seen = {} Valid = {}", .{ seen, valid });
+    std.log.notice("Seen = {} Valid = {}", .{ seen, valid });
 }
 
 // Lexer code that was more fun to write than the rest of this problem.

@@ -92,5 +92,5 @@ pub fn main() anyerror!void {
             validPositional += 1;
         }
     }
-    std.log.info("Valid by Count = {} Position = {}", .{ validCount, validPositional });
+    std.log.notice("Valid by Count = {} Position = {}", .{ validCount, validPositional });
 }

@@ -23,10 +23,10 @@ pub fn main() anyerror!void {
 
     var hits: usize = 1;
     for (checks) |*c| {
-        std.log.info("Right = {} Down = {} Hits = {}", .{ c.stride, c.skip, c.hits });
+        std.log.notice("Right = {} Down = {} Hits = {}", .{ c.stride, c.skip, c.hits });
         hits *= c.hits;
     }
-    std.log.info("Product = {}", .{hits});
+    std.log.notice("Product = {}", .{hits});
 }
 
 const Counter = struct {
