@@ -1,0 +1,80 @@
+#!/usr/bin/env ruby
+# Generate a RuleSet in Zig.
+# TODO: Convert this to Zig.
+
+Rule = Struct.new(:id, :contains)
+
+def translate(str)
+  words = str.chomp(".").split(/(?:\s*,)?\s+/)
+  qual = words.shift(3)
+  w = words.shift
+  raise "Invalid sentence containing word #{w}" unless w == 'contain'
+  qual.pop
+  [qual, (words.each_slice(4).to_a.each(&:pop))]
+end
+
+Kinds = {}
+KindNames = {}
+
+def get_kind(word)
+  word = word.join(" ")
+  id = Kinds[word] ||= Kinds.length
+  KindNames[id] ||= word
+  id
+end
+
+ruleset = ARGV[0] || 'rules'
+
+rules = STDIN.each_line.map do |line|
+  translate(line)
+end.each do |row|
+  kind, contains = row
+  kind = get_kind(kind)
+  row[0] = kind
+  contains.each do |a|
+    if a == %w[no other]
+      a[0] = 0
+      a[1] = 0
+      next
+    end
+    a[0] = a[0].to_i
+    a.push get_kind(a.pop(2))
+  end
+  contains.sort_by!(&:last)
+end
+rules.sort_by!(&:first)
+
+IO.popen(%w[zig fmt --stdin], 'r+') do |io|
+  io.puts <<-EOF
+    const RuleSet = @import("./rules.zig").RuleSet;
+    const Rule = @import("./rules.zig").Rule;
+    const Attr = @import("./rules.zig").Attr;
+
+    pub const #{ruleset} = RuleSet{
+      .rules = &[_]Rule{
+  EOF
+
+  rules.each do |kind, contains|
+    io.puts <<-EOF
+      Rule{
+        .kind = #{kind}, // #{KindNames[kind]}
+        .attrs = &[_]Attr{
+    EOF
+    contains.each do |n, kind|
+      io.puts "Attr{.kind = #{kind}, .n = #{n}}, // #{KindNames[kind]}"
+    end unless contains == [[0, 0]]
+    io.puts "},},"
+  end
+
+  io.puts "},"
+
+  io.puts ".names = &[_][]const u8{"
+  KindNames.to_a.sort_by(&:first).each do |id, name|
+    io.puts "#{name.inspect},"
+  end
+  io.puts "},};"
+
+  io.close_write
+
+  $stdout.write(io.read)
+end

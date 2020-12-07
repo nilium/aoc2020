@@ -1,0 +1,47 @@
+#!/usr/bin/env ruby
+# Same as main.rb, but generate a digraph for use with dot.
+
+Rule = Struct.new(:id, :contains)
+
+def translate(str)
+  words = str.chomp(".").split(/(?:\s*,)?\s+/)
+  qual = words.shift(3)
+  w = words.shift
+  raise "Invalid sentence containing word #{w}" unless w == 'contain'
+  qual.pop
+  [qual, (words.each_slice(4).to_a.each(&:pop))]
+end
+
+Kinds = {}
+KindNames = {}
+
+def get_kind(word)
+  word = word.join(" ")
+  id = Kinds[word] ||= Kinds.length
+  KindNames[id] ||= word
+  id
+end
+
+puts "digraph {"
+puts "graph [rankdir=LR];"
+$stdin.each_line.map do |line|
+  translate(line)
+end.each do |kind, contains|
+  kind = get_kind(kind)
+  contains.each do |a|
+    if a == %w[no other]
+      a[0] = 0
+      a[1] = 0
+      next
+    end
+    a[0] = a[0].to_i
+    a.push get_kind(a.pop(2))
+  end
+
+  container_name = KindNames[kind]
+  puts "#{container_name};"
+  contains.each do |n, ckind|
+    puts "#{KindNames[ckind]} -> #{container_name.inspect};"
+  end unless contains == [[0, 0]]
+end
+puts "}"
