@@ -111,8 +111,6 @@ pub fn main() anyerror!void {
 
     var stream = io.bufferedReader(io.getStdIn().reader());
     var rd = stream.reader();
-    var set = bits.BitSet.init(alloc);
-    defer set.deinit();
 
     var pt1 = try Part1.init(alloc);
     defer pt1.deinit();
