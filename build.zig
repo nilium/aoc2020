@@ -9,22 +9,23 @@ const Pkg = struct {
     run: []const u8,
 };
 
-fn dayPkg(comptime day: comptime_int, comptime src: []const u8) Pkg {
+fn newPkg(comptime name: []const u8) Pkg {
     return Pkg{
-        .name = fmt.comptimePrint("day{}", .{day}),
-        .src = src,
-        .run = fmt.comptimePrint("Run day {}", .{day}),
+        .name = name,
+        .src = name ++ "/src/main.zig",
+        .run = "Run " ++ name,
     };
 }
 
 const days = [_]Pkg{
-    dayPkg(1, "day1/src/main.zig"),
-    dayPkg(2, "day2/src/main.zig"),
-    dayPkg(3, "day3/src/main.zig"),
-    dayPkg(4, "day4/src/main.zig"),
-    dayPkg(5, "day5/src/main.zig"),
-    dayPkg(6, "day6/src/main.zig"),
-    dayPkg(7, "day7/src/main.zig"),
+    newPkg("day1"),
+    newPkg("day2"),
+    newPkg("day3"),
+    newPkg("day4"),
+    newPkg("day5"),
+    newPkg("day6"),
+    newPkg("day7"),
+    newPkg("day8"),
 };
 
 fn dayBuild(day: Pkg, b: *Builder, target: Target, mode: std.builtin.Mode) void {
