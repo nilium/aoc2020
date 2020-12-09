@@ -26,6 +26,7 @@ const days = [_]Pkg{
     newPkg("day6"),
     newPkg("day7"),
     newPkg("day8"),
+    newPkg("day9"),
 };
 
 fn dayBuild(day: Pkg, b: *Builder, target: Target, mode: std.builtin.Mode) void {
